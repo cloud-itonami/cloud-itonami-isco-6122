@@ -1,0 +1,32 @@
+;; What this vertical's robot physically does, declared for
+;; kotoba.robotics.process (kotoba-lang/robotics). `kbb -M:physics` runs it.
+;;
+;; README "Robotics premise": a coop-monitoring robot performs feed dispensing,
+;; egg collection and health sensing for poultry producers (ISCO 6122). Its
+;; physical work here: driving a feed trolley along the house, and lifting
+;; stacks of filled egg flats from the collection belt onto the egg trolley.
+;;
+;; Every number without a cited source is marked `estimate` in its :basis.
+;; Replacing an estimate with a sourced value is this bot's growth work.
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isco-6122"
+ :cases
+ [{:id :feed-trolley-along-house
+   :kind :transport
+   :procedure "feed-dispensing robot drives a feed trolley 90 m along the poultry house to top up the feeder line"
+   :params {:mass-kg 90.0 :distance-m 90.0 :v-max-mps 0.7 :a-max-mps2 0.3
+            :brake-decel-mps2 0.5 :drive-force-n 200.0 :crr 0.04
+            :cog-height-m 0.55 :support-half-length-m 0.35}
+   :sweep {:param :payload-kg :values [25.0 50.0 100.0 150.0 250.0]}
+   :quantity :cycle-time-s
+   :limit {:max 180.0 :basis "estimate: a house pass within 3 minutes keeps the feeder line from running empty at peak feeding"}
+   :boundary {:lo 5.0 :hi 600.0}}
+  {:id :egg-flats-onto-trolley
+   :kind :manipulator
+   :procedure "arm lifts a stack of filled 30-egg flats from the collection belt onto the egg trolley"
+   :params {:l1-m 0.45 :l2-m 0.40 :m1-kg 4.0 :m2-kg 2.5
+            :from [0.55 0.10] :to [0.20 0.55] :duration-s 3.0 :steps 500}
+   :sweep {:param :payload-kg :values [2.0 4.0 6.0 8.0 10.0]}
+   :quantity :peak-tau1-nm
+   :limit {:max 60.0 :basis "estimate: continuous shoulder torque of a ~5-7 kg payload class collaborative arm"}
+   :boundary {:lo 0.5 :hi 25.0}}]}
